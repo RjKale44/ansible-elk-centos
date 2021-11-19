@@ -1,0 +1,58 @@
+---
+# Installing Elasticsearch
+
+- name: Add Elasticsearch apt key
+  rpm_key:
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Adding Elasticsearch repo
+  yum_repository:
+    name: Elastic_7.X_repo
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
+    gpgcheck: true
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    description: Elastic 7.X Repo
+
+- name: install_sw_RHEL | Add Elastic Curator Yum Repo
+  yum_repository:
+    name: Curator_5_Repo
+    baseurl: https://packages.elastic.co/curator/5/centos/7
+    gpgcheck: True
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    description: Curator 5 Repo For RHEL 7 Family
+
+- name: Install Elasticssearch
+  yum:
+    name:
+      - elasticsearch
+      - elasticsearch-curator
+    update_cache: true
+
+- name: Updating the config file with IP of host
+  lineinfile:
+   destfile: /etc/elasticsearch/elasticsearch.yml
+   regexp: 'network.host:'
+   line: 'network.host: 127.0.0.1'
+
+- name: Updating config file with host
+  lineinfile:
+   destfile: /etc/elasticsearch/elasticsearch.yml
+   regexp: 'http.port:'
+   line: 'http.port: 9200'
+ 
+#- name: restart_services | Restarting the Services to Ensure Changes (if Any) Take Affect
+#  service:
+#    name: "elasticsearch"
+#    state: restarted
+#  changed_when: false
+
+#- name: restart_services | Give Elasticsearch a Second to Finish Booting Up
+#  pause:
+#    seconds: 15
+
+- name: Starting Elasticsearch
+  service:
+    name: "elasticsearch"
+    state: started
+    
